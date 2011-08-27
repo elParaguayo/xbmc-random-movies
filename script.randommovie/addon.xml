@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="script.randommovie"
+       name="Random Movie Player"
+       version="0.1"
+       provider-name="el_Paraguayo">
+  <requires>
+    <import addon="xbmc.python" version="1.0"/>
+  </requires>
+  <extension point="xbmc.python.library"
+             library="default.py" />
+ <provides>executable</provides>
+  <extension point="xbmc.addon.metadata">
+    <platform>all</platform>
+    <summary lang="en">Random Movie Player</summary>
+    <description lang="en">Plays a random movie from user's library. Can be filtered by genre.</description>
+  </extension>
+</addon>
