@@ -4,6 +4,8 @@
 # Author - el_Paraguayo
 # Website - https://github.com/elParaguayo/
 # Version - 0.1
+# Compatibility - pre-Eden
+#
 
 import xbmc
 import xbmcgui
@@ -12,6 +14,7 @@ import re
 import sys
 import os
 import random
+import simplejson as json
 
 # let's parse arguments before we start
 try:
@@ -22,64 +25,55 @@ except:
   params = {}
 # set our preferences
 filterGenres = params.get( "filtergenre", "" ) == "True"
+promptUser = params.get( "prompt" , "" ) == "True"
+
+
+def getMovieLibrary():
+  # get the raw JSON output
+  movies = json.loads(xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "VideoLibrary.GetMovies", "params": { "fields": ["genre", "playcount", "file"]}, "id": 1}'))
+  # and return it
+  return movies
 
 def getRandomMovie(filterWatched, filterGenre, genre):
-  # set our unplayed query
-  if filterWatched:
-    unplayed = "where (playCount is null "
-  else:
-    unplayed = ""
-  # filter by genre? (There must be a neater way of doing this)
-  if filterGenre:
-    # if we're already filtering unplayed films then we need to ADD an extra criteria
-    if filterWatched:
-      filter = "AND movieview.c14 like '%%" + genre + "%%') "
-    # otherwise it's a new criteria
-    else:
-      filter = " where movieview.c14 like '%%" + genre + "%%' "
-  else:
-    if filterWatched:
-      filter = ") "
-    else:  
-      filter = ""
-    
-  # sql statement
-  sql_movies = "select movieview.c00, movieview.c08, movieview.c14, movieview.strPath, movieview.strFilename from movieview %s%sorder by RANDOM() limit 1" % ( unplayed, filter )
-  # query the database
-  movies_xml = xbmc.executehttpapi( "QueryVideoDatabase(%s)" % quote_plus( sql_movies ), )
-  # separate the records
-  movies = re.findall( "<record>(.+?)</record>", movies_xml, re.DOTALL )
-  # enumerate thru our records and set our properties
-  for count, movie in enumerate( movies ):
-    # # separate individual fields
-    fields = re.findall( "<field>(.*?)</field>", movie, re.DOTALL )
-    thumb_cache, fanart_cache, play_path = get_media(fields[3], fields[4])
-  # return the filepath for the film  
-  return play_path
+  # set up empty list for movies that meet our criteria
+  movieList = []
+  # loop through all movies
+  for movie in moviesJSON["result"]["movies"]:
+    # reset the criteria flag
+    meetsCriteria = False
+    # If we're filtering by genre let's put the genres in a list
+    if filterGenre:
+      moviegenre = []
+      moviegenre = movie["genre"].split(" / ")
+    # check if the film meets the criteria
+    # Test #1: Does the genre match our selection (also check whether the playcount criteria are satisfied)
+    if ( filterGenre and genre in moviegenre ) and (( filterWatched and movie["playcount"] == 0 ) or not filterWatched):
+      meetsCriteria = True
+    # Test #2: Is the playcount 0 for unwatched movies (when not filtering by genre)
+    if ( filterWatched and movie["playcount"] == 0 and not filterGenre ):
+      meetsCriteria = True
+    # Test #3: If we're not filtering genre or unwatched movies, then it's added to the list!!
+    if ( not filterWatched and not filterGenre ):
+      meetsCriteria = True
+
+    # if it does, let's add the file path to our list
+    if meetsCriteria:
+      movieList.append(movie["file"])
+  # Make a random selection      
+  randomMovie = random.choice(movieList)
+  # return the filepath
+  return randomMovie
   
 def selectGenre(filterWatched):
   success = False
   selectedGenre = ""
-  # need to make sure we don't show genres from watched films if user only wants unwatched
-  if filterWatched:
-    unplayed = "where playCount is null "
-  else:
-    unplayed = ""
-  # sql statement - get genres from the films in our library
-  sql_genres = 'select c14 from movieview %s' % ( unplayed )
-  # query the database
-  genres_xml = xbmc.executehttpapi( "QueryVideoDatabase(%s)" % quote_plus( sql_genres ), )
-  # separate the records
-  genres = re.findall( "<record>(.+?)</record>", genres_xml, re.DOTALL )
-  # set up empty array
-  myGenres = []  
-  # enumerate thru our records and set our properties
-  for count, genre in enumerate( genres ):
-    # # separate individual fields
-    fields = re.findall( "<field>(.*?)</field>", genre, re.DOTALL )
-    for field in fields:
-      # split the genre field into single genres
-      genres = field.split(" / ")
+  myGenres = []
+  
+  for movie in moviesJSON["result"]["movies"]:
+    # Let's get the movie genres
+    # If we're only looking at unwatched movies then restrict list to those movies
+    if ( filterWatched and movie["playcount"] == 0 ) or not filterWatched:
+      genres = movie["genre"].split(" / ")
       for genre in genres:
         # check if the genre is a duplicate
         if not genre in myGenres:
@@ -100,19 +94,6 @@ def selectGenre(filterWatched):
   return success, selectedGenre
   
   
-def get_media( path, file ):
-  # set default values
-  play_path = fanart_path = thumb_path = path + file
-  # we handle stack:// media special
-  if ( file.startswith( "stack://" ) ):
-    play_path = fanart_path = file
-    thumb_path = file[ 8 : ].split( " , " )[ 0 ]
-  # we handle rar:// and zip:// media special
-  if ( file.startswith( "rar://" ) or file.startswith( "zip://" ) ):
-    play_path = fanart_path = thumb_path = file
-  # return media info
-  return xbmc.getCacheThumbName( thumb_path ), xbmc.getCacheThumbName( fanart_path ), play_path
-  
 def getUnwatched():
   # default is to select from all movies
   unwatched = False
@@ -123,10 +104,29 @@ def getUnwatched():
     # set restriction
     unwatched = True
   return unwatched
+  
+def askGenres():
+  # default is to select from all movies
+  selectGenre = False
+  # ask user whether they want to select a genre
+  a = xbmcgui.Dialog().yesno("Select genre", "Do you want to select a genre to watch?")
+  # deal with the output
+  if a == 1: 
+    # set filter
+    selectGenre = True
+  return selectGenre  
 
+  
+# get the full list of movies from the user's library
+moviesJSON = getMovieLibrary()
+  
 # ask user if they want to only play unwatched movies  
 unwatched = getUnwatched()  
 
+# is skin configured to use one entry?
+if promptUser and not filterGenres:
+  # if so, we need to ask whether they want to select genre
+  filterGenres = askGenres()
 
 # did user ask to select genre?
 if filterGenres:

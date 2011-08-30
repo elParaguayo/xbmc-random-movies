@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="script.randommovie"
-       name="Random Movie Player"
+       name="Random Movie Player (post Dharma!)"
        version="0.1"
        provider-name="el_Paraguayo">
   <requires>
-    <import addon="xbmc.python" version="1.0"/>
+    <import addon="xbmc.python" version="2.0"/>
+     <import addon="script.module.library" version="2.0.10"/>
   </requires>
-  <extension point="xbmc.python.library"
+  <extension point="xbmc.python.script"
              library="default.py" />
  <provides>executable</provides>
   <extension point="xbmc.addon.metadata">
