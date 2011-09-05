@@ -30,7 +30,8 @@ promptUser = params.get( "prompt" , "" ) == "True"
 
 def getMovieLibrary():
   # get the raw JSON output
-  movies = json.loads(xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "VideoLibrary.GetMovies", "params": { "fields": ["genre", "playcount", "file"]}, "id": 1}'))
+  moviestring = unicode(xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "VideoLibrary.GetMovies", "params": { "fields": ["genre", "playcount", "file"]}, "id": 1}'), errors='ignore')
+  movies = json.loads(moviestring)
   # and return it
   return movies
 
