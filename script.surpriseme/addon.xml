@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="script.surpriseme"
+       name="Surprise Me!"
+       version="0.1"
+       provider-name="el_Paraguayo">
+  <requires>
+    <import addon="xbmc.python" version="2.0"/>
+     <import addon="script.module.simplejson" version="2.0.10"/>
+  </requires>
+  <extension point="xbmc.python.script"
+             library="default.py" />
+ <provides>executable</provides>
+  <extension point="xbmc.addon.metadata">
+    <platform>all</platform>
+    <summary lang="en">Surprise Me1</summary>
+    <description lang="en">Plays random content from user's library. Use it when you can't make up your mind, or you just don't care!</description>
+  </extension>
+</addon>

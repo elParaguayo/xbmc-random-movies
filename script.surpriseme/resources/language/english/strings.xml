@@ -1,0 +1,11 @@
+<strings>
+    <string id="30000">Prompt on run or define preference (below)</string>
+    <string id="30001">Restrict to unwatched movies</string>
+    <string id="30002">Filter by genre</string>
+    <string id="30003">Filter by movie rating</string>
+    <string id="30004">Show trailers (may restrict results)</string>
+    <string id="30005">Number of trailers</string>
+    <string id="30006">Play random file from playlist</string>
+    <string id="30050">General</string>
+
+</strings>

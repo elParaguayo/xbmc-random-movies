@@ -1,0 +1,12 @@
+<settings>
+<category label="30050">
+   <setting id="runmode" type="enum" label="30000" values="prompt|defined" default="prompt"/>
+   <setting id="filterunwatched" type="enum" label="30001" values="prompt|yes|no" default="prompt" enable="eq(-1,1)"/>
+   <setting id="filtergenres" type="enum" label="30002" values="prompt|yes|no" default="prompt" enable="eq(-2,1)"/>
+   <setting id="filtermpaa" type="enum" label="30003" values="prompt|yes|no" default="prompt" enable="eq(-3,1)"/>
+   <setting id="trailermode" type="bool" label="30004" default="false" enable="eq(-4,1)" />
+   <setting id="numtrailers" type="slider" label="30005"  range="2,1,10" option="int" default=3 enable="eq(-5,1) + eq(-1,true)" />
+   <setting id="playlistmode" type="bool" label="30006" default="false" />
+</category>
+</settings>
+
