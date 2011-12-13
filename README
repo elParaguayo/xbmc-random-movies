@@ -1,12 +1,1 @@
-﻿Pre-Eden compatible version of random movie script.
-
-Note for skinners:
-
-The script will always ask users if they want to restrict selection to unwatched movies
-
-There are various parameters that can be passed
-1) Calling the script without any parameters will just ask about unwatched movies
-2) filterGenres=True - As well as the unwatched prompt, the user is asked which genre they want to watch
-3) promptUser=True - Asks the user about unwatched movies and then whether they want to filter by genre (and provides the genre selection dialog)
-
-Note 2) takes precedence over 3)
+﻿TESTING VERSION OF SURPRISE ME SCRIPT
